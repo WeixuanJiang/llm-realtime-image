@@ -8,6 +8,9 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install the dependencies
+RUN apt-get update
+RUN apt-get install libasound-dev libportaudio2 libportaudiocpp0 portaudio19-dev -y
+RUN apt-get install gcc -y
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code into the container
