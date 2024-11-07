@@ -9,3 +9,4 @@ python-dotenv==1.0.0
 pyaudio==0.2.14
 =======
 >>>>>>> fdf24d4772306f65076c4b8e11ee3e255877db6c
+numpy
