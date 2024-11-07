@@ -195,10 +195,11 @@ def generate_tts(text):
             buffer.write(chunk)
         buffer.seek(0)
 
-        with sf.SoundFile(buffer, 'r') as sound_file:
-            data = sound_file.read(dtype='int16')
-            sd.play(data, sound_file.samplerate)
-            sd.wait()
+        # with sf.SoundFile(buffer, 'r') as sound_file:
+        #     data = sound_file.read(dtype='int16')
+        #     sd.play(data, sound_file.samplerate)
+        #     sd.wait()
+        return buffer.getvalue()
 
     except Exception as e:
         logging.error("Error in generate_tts: %s", str(e))
