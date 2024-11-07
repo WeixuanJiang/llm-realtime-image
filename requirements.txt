@@ -2,11 +2,6 @@ fastapi==0.115.4
 uvicorn==0.32.0
 openai==1.54.1
 websockets==13.1
-soundfile==0.12.1
-sounddevice==0.5.1
 python-dotenv==1.0.0
-<<<<<<< HEAD
 pyaudio==0.2.14
-=======
->>>>>>> fdf24d4772306f65076c4b8e11ee3e255877db6c
 numpy

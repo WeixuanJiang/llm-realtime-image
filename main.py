@@ -9,9 +9,6 @@ from fastapi.websockets import WebSocketDisconnect
 from openai import OpenAI
 from dotenv import load_dotenv
 import io
-import soundfile as sf
-import sounddevice as sd
-from pathlib import Path
 import logging
 
 # Configure logging
@@ -165,8 +162,9 @@ async def handle_media_stream(websocket: WebSocket):
                                     {"role": "assistant", "content": transcript}
                                 )
 
-                                # Generate TTS and play it
-                                generate_tts(transcript)
+                                # Generate TTS and return audio bytes
+                                audio_data = generate_tts(transcript)
+                                await websocket.send(audio_data)
                         else:
                             logging.warning(
                                 "Response does not contain expected content."
@@ -210,7 +208,7 @@ async def initialize_session(openai_ws):
 
 
 def generate_tts(text):
-    """Generate speech using OpenAI TTS and play the audio immediately."""
+    """Generate speech using OpenAI TTS and return the audio data."""
     try:
         # Generate the TTS response from OpenAI
         tts_response = client.audio.speech.create(
