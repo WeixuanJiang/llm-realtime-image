@@ -102,12 +102,29 @@ async def handle_media_stream(websocket: WebSocket):
             async def receive_and_forward_audio():
                 """Receive audio from the client and send it to OpenAI."""
                 while True:
-                    audio_data = await websocket.receive_bytes()
-                    audio_append = {
-                        "type": "input_audio_buffer.append",
-                        "audio": base64.b64encode(audio_data).decode('utf-8')
-                    }
-                    await openai_ws.send(json.dumps(audio_append))
+                    try:
+                        # Receive the WebSocket message
+                        message = await websocket.receive()
+
+                        # Check if the message contains binary data
+                        if "bytes" in message:
+                            audio_data = message["bytes"]
+                            audio_append = {
+                                "type": "input_audio_buffer.append",
+                                "audio": base64.b64encode(audio_data).decode('utf-8'),
+                            }
+                            await openai_ws.send(json.dumps(audio_append))
+                        else:
+                            # Log unexpected message types and handle gracefully
+                            logging.warning("Unexpected WebSocket message type: %s", message)
+                            await websocket.close(code=1003, reason="Expected binary data")
+                            break
+                    except WebSocketDisconnect:
+                        logging.info("WebSocket disconnected by client.")
+                        break
+                    except Exception as e:
+                        logging.error("Error in receive_and_forward_audio: %s", str(e))
+                        break
 
             async def receive_and_forward_response():
                 """Receive audio response from OpenAI and handle it."""
