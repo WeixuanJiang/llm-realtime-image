@@ -90,7 +90,6 @@ def analyze_image(
         return {"error": str(e)}
 
 
-@app.websocket("/media-stream")
 async def handle_media_stream(websocket: WebSocket):
     logging.info("Client connected")
     await websocket.accept()
@@ -206,7 +205,7 @@ async def initialize_session(openai_ws):
     logging.debug("Instructions sent to OpenAI: %s", instructions)
     await openai_ws.send(json.dumps(session_update))
 
-
+@app.websocket("/media-stream")
 def generate_tts(text):
     """Generate speech using OpenAI TTS and return the audio data."""
     try:
