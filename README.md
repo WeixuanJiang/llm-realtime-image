@@ -67,12 +67,4 @@ python main.py
 Send a GET request to `/analyze-image` with the image path as a query parameter.
 
 ### Voice Communication
-Connect to the WebSocket endpoint at `/media-stream` for real-time voice interaction.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+Connect to the WebSocket endpoint at `/media-stream` for real-time voice interaction..
