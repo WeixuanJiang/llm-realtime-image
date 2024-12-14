@@ -95,25 +95,25 @@ def analyze_image(
     
 @app.get("/compare-images", response_class=JSONResponse)
 def compare_images(
-    image_path_1: str = Query(..., description="Path to the first image"),
-    image_path_2: str = Query(..., description="Path to the second image")
+    image_1: str = Query(..., description="base64 first image"),
+    image_2: str = Query(..., description="base64 second image")
 ):
     """Compare two images using OpenAI."""
 
-    def encode_image(image_path):
-        try:
-            with open(image_path, "rb") as image_file:
-                return base64.b64encode(image_file.read()).decode("utf-8")
-        except Exception as e:
-            logging.error(f"Error encoding image {image_path}: {str(e)}")
-            return None
+    # def encode_image(image_path):
+    #     try:
+    #         with open(image_path, "rb") as image_file:
+    #             return base64.b64encode(image_file.read()).decode("utf-8")
+    #     except Exception as e:
+    #         logging.error(f"Error encoding image {image_path}: {str(e)}")
+    #         return None
 
-    # Encode the images
-    base64_image_1 = encode_image(image_path_1)
-    base64_image_2 = encode_image(image_path_2)
+    # # Encode the images
+    # base64_image_1 = encode_image(image_path_1)
+    # base64_image_2 = encode_image(image_path_2)
 
-    if not base64_image_1 or not base64_image_2:
-        return {"error": "Failed to encode one or both images."}
+    # if not base64_image_1 or not base64_image_2:
+    #     return {"error": "Failed to encode one or both images."}
 
     # Create a request to OpenAI's API
     try:
@@ -124,8 +124,8 @@ def compare_images(
                     "role": "user",
                     "content": [
                         {"type": "text", "text": "Compare these two images, decide whether those two images are same. expected output 1 or 0, 1 means same, 0 means different. Do not include any explanation or comments Output Example: Example 1: 1, Example 2: 0"},
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image_1}"}},
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image_2}"}},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_1}"}},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_2}"}},
                     ],
                 }
             ],
