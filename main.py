@@ -88,6 +88,54 @@ def analyze_image(
     except Exception as e:
         logging.error("Error parsing OpenAI response: %s", str(e))
         return {"error": str(e)}
+    
+    
+@app.get("/compare-images", response_class=JSONResponse)
+def compare_images(
+    image_path_1: str = Query(..., description="Path to the first image"),
+    image_path_2: str = Query(..., description="Path to the second image")
+):
+    """Compare two images using OpenAI."""
+
+    def encode_image(image_path):
+        try:
+            with open(image_path, "rb") as image_file:
+                return base64.b64encode(image_file.read()).decode("utf-8")
+        except Exception as e:
+            logging.error(f"Error encoding image {image_path}: {str(e)}")
+            return None
+
+    # Encode the images
+    base64_image_1 = encode_image(image_path_1)
+    base64_image_2 = encode_image(image_path_2)
+
+    if not base64_image_1 or not base64_image_2:
+        return {"error": "Failed to encode one or both images."}
+
+    # Create a request to OpenAI's API
+    try:
+        response = client.chat.completions.create(
+            model=VISION_MODEL,
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Compare these two images, decide whether those two images are same. expected output 1 or 0, 1 means same, 0 means different. Do not include any explanation or comments Output Example: Example 1: 1, Example 2: 0"},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image_1}"}},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image_2}"}},
+                    ],
+                }
+            ],
+            max_tokens=300,
+        )
+
+        # Extract the content from the response
+        content = response.choices[0].message["content"]
+        print("Response content:", content)
+        return {"response": content}
+    except Exception as e:
+        logging.error("Error parsing OpenAI response: %s", str(e))
+        return {"error": str(e)}
 
 @app.websocket("/media-stream")
 async def handle_media_stream(websocket: WebSocket):
@@ -205,7 +253,7 @@ async def initialize_session(openai_ws):
     logging.debug("Instructions sent to OpenAI: %s", instructions)
     await openai_ws.send(json.dumps(session_update))
 
-@app.route('/tts', methods=['POST'])
+@app.post("/tts")
 def generate_tts(text):
     """Generate speech using OpenAI TTS and return the audio data."""
     try:
