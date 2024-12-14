@@ -6,6 +6,9 @@ import websockets
 from fastapi import FastAPI, WebSocket, Query
 from fastapi.responses import JSONResponse
 from fastapi.websockets import WebSocketDisconnect
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
+from pydantic import BaseModel
 from openai import OpenAI
 from dotenv import load_dotenv
 import io
@@ -253,7 +256,7 @@ async def initialize_session(openai_ws):
     logging.debug("Instructions sent to OpenAI: %s", instructions)
     await openai_ws.send(json.dumps(session_update))
 
-@app.post("/tts")
+@app.route('/tts', methods=['POST'])
 def generate_tts(text):
     """Generate speech using OpenAI TTS and return the audio data."""
     try:
@@ -264,18 +267,26 @@ def generate_tts(text):
             input=text,
             response_format=os.getenv("RESPONSE_FORMAT"),
         )
+
+        # Stream audio data using a buffer
         buffer = io.BytesIO()
         for chunk in tts_response.iter_bytes(chunk_size=4096):
             buffer.write(chunk)
         buffer.seek(0)
-        return buffer.getvalue()
+
+        # Return the audio as a stream
+        return StreamingResponse(buffer, media_type="audio/mpeg")
 
     except Exception as e:
-        logging.error("Error in generate_tts: %s", str(e))
-        raise
+        logging.error(f"Error in generate_tts: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to generate TTS")
+
+# FastAPI route to handle TTS requests
+@app.post("/tts")
+async def generate_tts_endpoint(input: TextInput):
+    return generate_tts(input.text)
 
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=PORT)
