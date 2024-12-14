@@ -3,7 +3,7 @@ import json
 import base64
 import asyncio
 import websockets
-from fastapi import FastAPI, WebSocket, Query
+from fastapi import FastAPI, WebSocket, Query, Body
 from fastapi.responses import JSONResponse
 from fastapi.websockets import WebSocketDisconnect
 from fastapi import FastAPI, HTTPException
@@ -95,8 +95,8 @@ def analyze_image(
     
 @app.post("/compare-images", response_class=JSONResponse)
 def compare_images(
-    image_1: str = Query(..., description="base64 first image"),
-    image_2: str = Query(..., description="base64 second image")
+    image_1: str = Body(..., description="base64 first image"),
+    image_2: str = Body(..., description="base64 second image")
 ):
     """Compare two images using OpenAI."""
 
@@ -129,7 +129,7 @@ def compare_images(
                     ],
                 }
             ],
-            max_tokens=600,
+            max_tokens=10,
         )
 
         # Extract the content from the response
