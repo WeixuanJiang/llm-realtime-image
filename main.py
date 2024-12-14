@@ -281,6 +281,11 @@ def generate_tts(text):
         logging.error(f"Error in generate_tts: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to generate TTS")
 
+# Input schema
+class TextInput(BaseModel):
+        text: str
+
+
 # FastAPI route to handle TTS requests
 @app.post("/tts")
 async def generate_tts_endpoint(input: TextInput):
