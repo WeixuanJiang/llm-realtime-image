@@ -129,11 +129,11 @@ def compare_images(
                     ],
                 }
             ],
-            max_tokens=300,
+            max_tokens=600,
         )
 
         # Extract the content from the response
-        content = response.choices[0].message["content"]
+        content = response.choices[0].message.content
         print("Response content:", content)
         return {"response": content}
     except Exception as e:
