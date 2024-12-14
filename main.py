@@ -93,7 +93,7 @@ def analyze_image(
         return {"error": str(e)}
     
     
-@app.get("/compare-images", response_class=JSONResponse)
+@app.post("/compare-images", response_class=JSONResponse)
 def compare_images(
     image_1: str = Query(..., description="base64 first image"),
     image_2: str = Query(..., description="base64 second image")
